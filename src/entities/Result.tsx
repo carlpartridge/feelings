@@ -1,37 +1,37 @@
-import {Entity, PrimaryGeneratedColumn, Column, BaseEntity} from 'typeorm';
+// import {Entity, PrimaryGeneratedColumn, Column, BaseEntity} from 'typeorm';
 
-@Entity()
-export class Result extends BaseEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
+// @Entity()
+// export class Result extends BaseEntity {
+//   @PrimaryGeneratedColumn()
+//   id: number;
 
-  @Column()
-  happened_at: string;
+//   @Column()
+//   happened_at: string;
 
-  @Column()
-  sleep_hours: number;
+//   @Column()
+//   sleep_hours: number;
 
-  @Column()
-  sleep_quality: number;
+//   @Column()
+//   sleep_quality: number;
 
-  @Column()
-  feeling_on_wakeup: number;
+//   @Column()
+//   feeling_on_wakeup: number;
 
-  @Column()
-  feeling_rest_of_day: number;
+//   @Column()
+//   feeling_rest_of_day: number;
 
-  @Column()
-  weight: string;
+//   @Column()
+//   weight: string;
 
-  @Column()
-  nap: string;
+//   @Column()
+//   nap: string;
 
-  @Column()
-  excercise: string;
+//   @Column()
+//   excercise: string;
 
-  @Column()
-  outside: string;
-}
+//   @Column()
+//   outside: string;
+// }
 
 // import SQLite from 'react-native-sqlite-storage';
 // import {BaseModel, types} from 'react-native-sqlite-orm';

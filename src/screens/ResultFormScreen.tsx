@@ -10,58 +10,59 @@ import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {StackParamList} from '../../App';
 import {Controller, SubmitHandler, useForm} from 'react-hook-form';
 import {ScrollView, StyleSheet, View} from 'react-native';
-import {createResult} from '../db';
+import {Result} from '../models/Result';
+import {ERROR_MESSAGES, ExcerciseOptions, VALIDATIONS} from '../constants';
+import {useRealm} from '@realm/react';
+import uuid from 'react-native-uuid';
 
-export enum ExcerciseOptions {
-  none = 'None',
-  small = 'Light (up to 30m)',
-  medium = 'Medium (up to 1h)',
-  large = 'Heavy (more than 1h)',
-}
-
-export type ResultT = {
-  id?: number;
-  happened_at?: string;
-  sleep_hours: string;
-  sleep_quality: string;
-  feeling_on_wakeup: string;
-  feeling_rest_of_day?: string;
-  weight?: string;
+// TODO get this from the Result model?
+export interface ResultData {
+  sleep_hours: number;
+  sleep_quality: number;
+  feeling_on_wakeup: number;
+  feeling_rest_of_day?: number;
+  weight?: number;
   nap?: ExcerciseOptions;
   excercise?: ExcerciseOptions;
   outside?: ExcerciseOptions;
-};
+}
 
-const VALIDATIONS = {
-  float: {
-    message: 'Needs to be a number with up two decimal places',
-    value: /^[0-9]*\.?[0-9]{0,2}$/i,
-  },
-  rating: {
-    message: 'Needs to a be number from 0-10',
-    value: /^[0-9]{1,2}$/i,
-  },
-};
-
-const ERROR_MESSAGES = {
-  REQUIRED: 'This Field Is Required',
-  NAME_INVALID: 'Not a Valid Name',
-  TERMS: 'Terms Must Be Accepted To Continue',
-  EMAIL_INVALID: 'Not a Valid Email',
-};
+export interface ResultModelData extends ResultData {
+  _id: string;
+  happened_at: string;
+}
 
 type Props = NativeStackScreenProps<StackParamList, 'ResultFormScreen'>;
 
 const ResultFormScreen = ({navigation}: Props) => {
+  const realm = useRealm();
+
   const {
     control,
     handleSubmit,
     formState: {errors, isValid},
-  } = useForm<ResultT>({mode: 'all', shouldUseNativeValidation: true});
-  // console.log(errors, isValid, dirtyFields);
-  const onSubmit: SubmitHandler<ResultT> = (data: any) => {
+  } = useForm<ResultData>({mode: 'all', shouldUseNativeValidation: true});
+
+  const onSubmit: SubmitHandler<ResultData> = (data: any) => {
     console.log('form data: ', data);
-    createResult(data);
+    const toWrite: ResultModelData = {
+      _id: uuid.v4().toString(),
+      happened_at: new Date().toDateString(),
+      sleep_hours: parseFloat(data.sleep_hours),
+      sleep_quality: parseInt(data.sleep_quality, 10),
+      feeling_on_wakeup: parseInt(data.feeling_on_wakeup, 10),
+      feeling_rest_of_day: parseInt(data.feeling_rest_of_day, 10),
+      weight: parseFloat(data.weight),
+      nap: data.nap,
+      excercise: data.excercise,
+      outside: data.outside,
+    };
+    console.log('transformed data: ', toWrite);
+
+    realm.write(() => {
+      const result = realm.create(Result, toWrite);
+      console.log('saved result: ', result);
+    });
   };
 
   return (

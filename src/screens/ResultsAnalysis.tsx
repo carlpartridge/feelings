@@ -3,22 +3,23 @@ import {DataTable} from 'react-native-paper';
 // import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 // import {StackParamList} from '../../App';
 import {ScrollView, View} from 'react-native';
-import {queryResults} from '../db';
+// import {queryResults} from '../db';
 import {ResultT} from './ResultFormScreen';
+import {queryResults} from '../db';
 
 // type Props = NativeStackScreenProps<StackParamList, 'ResultsAnalysis'>;
 
 const ResultsAnalysis = () => {
-  const [results, setResults] = useState([]);
-  useEffect(() => {
-    queryResults()
-      .then((data: any) => {
-        setResults(data);
-      })
-      .catch(error => console.log(error));
-  }, []);
+  // const [results, setResults] = useState<any[]>([]);
+  // useEffect(() => {
+    const results = queryResults();
+      // .then((data: any) => {
+        // setResults(data);
+      // })
+      // .catch(error => console.log(error));
+  // }, []);
   // let result = {};
-  console.log('---results: ', results, results?.rows?.raw());
+  console.log('---results: ', results);
 
   return (
     <ScrollView>
@@ -36,7 +37,7 @@ const ResultsAnalysis = () => {
           </DataTable.Header>
 
           {results &&
-            results?.rows?.raw().map((result: ResultT) => {
+            results.map((result: ResultT) => {
               return (
                 <DataTable.Row key={result.id}>
                   <DataTable.Cell>{result.happened_at}</DataTable.Cell>
