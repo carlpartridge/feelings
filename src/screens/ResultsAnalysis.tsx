@@ -35,7 +35,7 @@ const ResultsAnalysis = ({navigation}: Props) => {
                   <DataTable.Cell
                     onPress={() =>
                       navigation.navigate('ResultFormScreen', {
-                        result: {...result},
+                        resultId: result._id,
                       })
                     }>
                     {result.happened_at.toString()}

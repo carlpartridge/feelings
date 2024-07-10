@@ -12,7 +12,7 @@ import {Controller, SubmitHandler, useForm} from 'react-hook-form';
 import {ScrollView, StyleSheet, View} from 'react-native';
 import {Result} from '../models/Result';
 import {ERROR_MESSAGES, ExerciseOptions, VALIDATIONS} from '../constants';
-import {useRealm} from '@realm/react';
+import {useObject, useRealm} from '@realm/react';
 import uuid from 'react-native-uuid';
 
 // TODO how to get this from the Result model?
@@ -29,8 +29,8 @@ export interface ResultFormData {
 
 // TODO theres gotta be a better way to do this?
 export interface ResultModelData {
-  _id: string;
-  happened_at: string;
+  _id?: string;
+  happened_at?: string;
   sleep_hours: number;
   sleep_quality: number;
   feeling_on_wakeup: number;
@@ -46,8 +46,27 @@ type Props = NativeStackScreenProps<StackParamList, 'ResultFormScreen'>;
 const ResultFormScreen = ({route, navigation}: Props) => {
   const realm = useRealm();
 
-  const {result} = route?.params;
-  console.log('result: ', result);
+  const {resultId} = route?.params;
+  const result = useObject(Result, resultId || '');
+
+  const getResult: ResultFormData | any = (result: ResultModelData) => {
+    if (!result) {
+      return {};
+    }
+
+    return {
+      sleep_hours: result.sleep_hours.toString(),
+      sleep_quality: result.sleep_quality.toString(),
+      feeling_on_wakeup: result.feeling_on_wakeup.toString(),
+      feeling_rest_of_day: result.feeling_rest_of_day
+        ? result.feeling_rest_of_day.toString()
+        : undefined,
+      weight: result.weight ? result.weight.toString() : undefined,
+      nap: result.nap ? result.nap.toString() : undefined,
+      exercise: result.exercise ? result.exercise.toString() : undefined,
+      outside: result.outside ? result.outside.toString() : undefined,
+    };
+  };
 
   const {
     control,
@@ -56,35 +75,41 @@ const ResultFormScreen = ({route, navigation}: Props) => {
   } = useForm<ResultFormData>({
     mode: 'all',
     shouldUseNativeValidation: true,
-    defaultValues: result ? result : {},
+    defaultValues: getResult(result),
   });
 
-  // const getResult: ResultModelData | Record<string, any> = (id: string) => {
-  //   if (!id) {
-  //     return {};
-  //   }
-  //   useObject(Result, id);
-  // };
-
   const onSubmit: SubmitHandler<ResultFormData> = (data: any) => {
-    const toWrite: ResultModelData = {
-      _id: uuid.v4().toString(),
-      happened_at: new Date().toDateString(),
-      sleep_hours: parseFloat(data.sleep_hours),
-      sleep_quality: parseInt(data.sleep_quality, 10),
-      feeling_on_wakeup: parseInt(data.feeling_on_wakeup, 10),
-      feeling_rest_of_day: data.feeling_rest_of_day
-        ? parseInt(data.feeling_rest_of_day, 10)
-        : null,
-      weight: data.weight ? parseFloat(data.weight) : null,
-      nap: data.nap ? data.nap : null,
-      exercise: data.exercise ? data.exercise : null,
-      outside: data.outside ? data.outside : null,
-    };
-
-    realm.write(() => {
-      realm.create(Result, toWrite);
-    });
+    if (!result) {
+      realm.write(() => {
+        realm.create(Result, {
+          _id: uuid.v4().toString(),
+          happened_at: new Date().toDateString(),
+          sleep_hours: parseFloat(data.sleep_hours),
+          sleep_quality: parseInt(data.sleep_quality, 10),
+          feeling_on_wakeup: parseInt(data.feeling_on_wakeup, 10),
+          feeling_rest_of_day: data.feeling_rest_of_day
+            ? parseInt(data.feeling_rest_of_day, 10)
+            : null,
+          weight: data.weight ? parseFloat(data.weight) : null,
+          nap: data.nap ? data.nap : null,
+          exercise: data.exercise ? data.exercise : null,
+          outside: data.outside ? data.outside : null,
+        });
+      });
+    } else {
+      realm.write(() => {
+        result.sleep_hours = parseFloat(data.sleep_hours);
+        result.sleep_quality = parseInt(data.sleep_quality, 10);
+        result.feeling_on_wakeup = parseInt(data.feeling_on_wakeup, 10);
+        result.feeling_rest_of_day = data.feeling_rest_of_day
+          ? parseInt(data.feeling_rest_of_day, 10)
+          : null;
+        result.weight = data.weight ? parseFloat(data.weight) : null;
+        result.nap = data.nap ? data.nap : null;
+        result.exercise = data.exercise ? data.exercise : null;
+        result.outside = data.outside ? data.outside : null;
+      });
+    }
 
     navigation.navigate('HomeScreen');
   };

@@ -1,14 +1,12 @@
 import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import HomeScreen from './src/screens/HomeScreen';
-import ResultFormScreen, {
-  ResultModelData,
-} from './src/screens/ResultFormScreen';
+import ResultFormScreen from './src/screens/ResultFormScreen';
 import ResultsAnalysis from './src/screens/ResultsAnalysis';
 
 export type StackParamList = {
   HomeScreen: undefined;
-  ResultFormScreen: {result?: ResultModelData};
+  ResultFormScreen: {resultId?: string};
   ResultsAnalysis: undefined;
 };
 const Stack = createNativeStackNavigator<StackParamList>();
