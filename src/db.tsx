@@ -1,15 +1,15 @@
-import {useQuery} from '@realm/react';
+// import {useQuery} from '@realm/react';
 
-export const createResult = (data: Result) => {
+// export const createResult = (data: Result) => {
 
-};
+// };
 
-export const queryResults = () => {
-  useQuery('Result', (results: any): any => {
-    console.log("in query results: ", results);
-    return results.sorted('happened_at');
-  });
-};
+// export const queryResults = () => {
+//   useQuery('Result', (results: any): any => {
+//     console.log("in query results: ", results);
+//     return results.sorted('happened_at');
+//   });
+// };
 
 // import SQLite from 'react-native-sqlite-storage';
 // import {ExcerciseOptions, ResultT} from './screens/ResultFormScreen';

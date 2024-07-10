@@ -1,16 +1,17 @@
 import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import HomeScreen from './src/screens/HomeScreen';
+import ResultFormScreen, {
+  ResultModelData,
+} from './src/screens/ResultFormScreen';
+import ResultsAnalysis from './src/screens/ResultsAnalysis';
 
 export type StackParamList = {
   HomeScreen: undefined;
-  ResultFormScreen: undefined;
+  ResultFormScreen: {result?: ResultModelData};
   ResultsAnalysis: undefined;
 };
 const Stack = createNativeStackNavigator<StackParamList>();
-
-import HomeScreen from './src/screens/HomeScreen';
-import ResultFormScreen from './src/screens/ResultFormScreen';
-import ResultsAnalysis from './src/screens/ResultsAnalysis';
 
 function App(): React.JSX.Element {
   return (

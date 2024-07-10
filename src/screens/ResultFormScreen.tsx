@@ -11,58 +11,82 @@ import {StackParamList} from '../../App';
 import {Controller, SubmitHandler, useForm} from 'react-hook-form';
 import {ScrollView, StyleSheet, View} from 'react-native';
 import {Result} from '../models/Result';
-import {ERROR_MESSAGES, ExcerciseOptions, VALIDATIONS} from '../constants';
+import {ERROR_MESSAGES, ExerciseOptions, VALIDATIONS} from '../constants';
 import {useRealm} from '@realm/react';
 import uuid from 'react-native-uuid';
 
-// TODO get this from the Result model?
-export interface ResultData {
+// TODO how to get this from the Result model?
+export interface ResultFormData {
+  sleep_hours: string;
+  sleep_quality: string;
+  feeling_on_wakeup: string;
+  feeling_rest_of_day?: string;
+  weight?: string;
+  nap?: ExerciseOptions;
+  exercise?: ExerciseOptions;
+  outside?: ExerciseOptions;
+}
+
+// TODO theres gotta be a better way to do this?
+export interface ResultModelData {
+  _id: string;
+  happened_at: string;
   sleep_hours: number;
   sleep_quality: number;
   feeling_on_wakeup: number;
-  feeling_rest_of_day?: number;
-  weight?: number;
-  nap?: ExcerciseOptions;
-  excercise?: ExcerciseOptions;
-  outside?: ExcerciseOptions;
-}
-
-export interface ResultModelData extends ResultData {
-  _id: string;
-  happened_at: string;
+  feeling_rest_of_day?: number | null;
+  weight?: number | null;
+  nap?: ExerciseOptions;
+  exercise?: ExerciseOptions;
+  outside?: ExerciseOptions;
 }
 
 type Props = NativeStackScreenProps<StackParamList, 'ResultFormScreen'>;
 
-const ResultFormScreen = ({navigation}: Props) => {
+const ResultFormScreen = ({route, navigation}: Props) => {
   const realm = useRealm();
+
+  const {result} = route?.params;
+  console.log('result: ', result);
 
   const {
     control,
     handleSubmit,
     formState: {errors, isValid},
-  } = useForm<ResultData>({mode: 'all', shouldUseNativeValidation: true});
+  } = useForm<ResultFormData>({
+    mode: 'all',
+    shouldUseNativeValidation: true,
+    defaultValues: result ? result : {},
+  });
 
-  const onSubmit: SubmitHandler<ResultData> = (data: any) => {
-    console.log('form data: ', data);
+  // const getResult: ResultModelData | Record<string, any> = (id: string) => {
+  //   if (!id) {
+  //     return {};
+  //   }
+  //   useObject(Result, id);
+  // };
+
+  const onSubmit: SubmitHandler<ResultFormData> = (data: any) => {
     const toWrite: ResultModelData = {
       _id: uuid.v4().toString(),
       happened_at: new Date().toDateString(),
       sleep_hours: parseFloat(data.sleep_hours),
       sleep_quality: parseInt(data.sleep_quality, 10),
       feeling_on_wakeup: parseInt(data.feeling_on_wakeup, 10),
-      feeling_rest_of_day: parseInt(data.feeling_rest_of_day, 10),
-      weight: parseFloat(data.weight),
-      nap: data.nap,
-      excercise: data.excercise,
-      outside: data.outside,
+      feeling_rest_of_day: data.feeling_rest_of_day
+        ? parseInt(data.feeling_rest_of_day, 10)
+        : null,
+      weight: data.weight ? parseFloat(data.weight) : null,
+      nap: data.nap ? data.nap : null,
+      exercise: data.exercise ? data.exercise : null,
+      outside: data.outside ? data.outside : null,
     };
-    console.log('transformed data: ', toWrite);
 
     realm.write(() => {
-      const result = realm.create(Result, toWrite);
-      console.log('saved result: ', result);
+      realm.create(Result, toWrite);
     });
+
+    navigation.navigate('HomeScreen');
   };
 
   return (
@@ -206,9 +230,9 @@ const ResultFormScreen = ({navigation}: Props) => {
             <View>
               <Text variant="titleLarge">Nap?</Text>
               <RadioButton.Group
-                value={value as ExcerciseOptions}
+                value={value as ExerciseOptions}
                 onValueChange={val => onChange(val)}>
-                {Object.entries(ExcerciseOptions).map(
+                {Object.entries(ExerciseOptions).map(
                   ([key, val]: [string, string]) => {
                     return (
                       <RadioButton.Item key={key} label={val} value={key} />
@@ -219,19 +243,19 @@ const ResultFormScreen = ({navigation}: Props) => {
             </View>
           )}
         />
-        {/* excercise */}
+        {/* exercise */}
         <Controller
           control={control}
           defaultValue={undefined}
-          name="excercise"
+          name="exercise"
           rules={{required: false}}
           render={({field: {onChange, value}}) => (
             <>
-              <Text variant="titleLarge">Excercise?</Text>
+              <Text variant="titleLarge">Exercise?</Text>
               <RadioButton.Group
-                value={value as ExcerciseOptions}
+                value={value as ExerciseOptions}
                 onValueChange={val => onChange(val)}>
-                {Object.entries(ExcerciseOptions).map(
+                {Object.entries(ExerciseOptions).map(
                   ([key, val]: [string, string]) => {
                     return (
                       <RadioButton.Item key={key} label={val} value={key} />
@@ -252,13 +276,11 @@ const ResultFormScreen = ({navigation}: Props) => {
             <>
               <Text variant="titleLarge">Outside?</Text>
               <RadioButton.Group
-                value={value as ExcerciseOptions}
+                value={value as ExerciseOptions}
                 onValueChange={val => {
-                  // console.log(val, ExcerciseOptions[val]);
-                  // setValue('outside', val as ExcerciseOptions);
                   onChange(val);
                 }}>
-                {Object.entries(ExcerciseOptions).map(
+                {Object.entries(ExerciseOptions).map(
                   ([key, val]: [string, string]) => {
                     return (
                       <RadioButton.Item key={key} label={val} value={key} />

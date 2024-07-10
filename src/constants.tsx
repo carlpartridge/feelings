@@ -1,4 +1,4 @@
-export enum ExcerciseOptions {
+export enum ExerciseOptions {
   none = 'None',
   small = 'Light (up to 30m)',
   medium = 'Medium (up to 1h)',

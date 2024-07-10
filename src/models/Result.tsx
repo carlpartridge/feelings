@@ -1,5 +1,5 @@
 import {ObjectSchema} from 'realm';
-import {ExcerciseOptions} from '../constants';
+import {ExerciseOptions} from '../constants';
 
 export class Result extends Realm.Object<Result> {
   _id!: string;
@@ -7,11 +7,11 @@ export class Result extends Realm.Object<Result> {
   sleep_hours!: number;
   sleep_quality!: number;
   feeling_on_wakeup!: number;
-  feeling_rest_of_day?: number;
-  weight?: number;
-  nap?: ExcerciseOptions;
-  excercise?: ExcerciseOptions;
-  outside?: ExcerciseOptions;
+  feeling_rest_of_day?: number | null;
+  weight?: number | null;
+  nap?: ExerciseOptions | null;
+  exercise?: ExerciseOptions | null;
+  outside?: ExerciseOptions | null;
 
   static schema: ObjectSchema = {
     name: 'Result',
@@ -21,11 +21,11 @@ export class Result extends Realm.Object<Result> {
       sleep_hours: 'float',
       sleep_quality: 'int',
       feeling_on_wakeup: 'int',
-      feeling_rest_of_day: 'int',
-      weight: 'float',
-      nap: 'string',
-      excercise: 'string',
-      outside: 'string',
+      feeling_rest_of_day: {type: 'int', optional: true},
+      weight: {type: 'float', optional: true},
+      nap: {type: 'string', optional: true},
+      exercise: {type: 'string', optional: true},
+      outside: {type: 'string', optional: true},
     },
     primaryKey: '_id',
   };
